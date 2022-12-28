@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const { UserModel } = require('../model/auth.model');
 const token_secret = process.env.TOKEN_KEY;
 
-const validateUser = async (data) => {
+const   validateUser = async (data) => {
     let { email, password } = data;
     try {
       let user = await UserModel.findOne({ email });
@@ -54,7 +54,7 @@ const loginUser = async (req, res) => {
     let user = await validateUser({ email, password });
     if (user) {
       let token = jwt.sign(
-        { email: user.email, name: user.name},
+        { email: user.email, name: user.firstname},
         token_secret,
         {
           expiresIn: "7 days",
