@@ -62,9 +62,9 @@ const loginUser = async (req, res) => {
       );
   
    
-       res.status(200).send({ status: true, token });
+       res.status(200).send({ status: true, token,message: "Login Successfully" });
     } else {
-      return res.send({ status: false, messege: "something went wrong" });
+      return res.send({ status: false, message: "something went wrong" });
     }
   };
  const getUser = async(req,res)=>{
