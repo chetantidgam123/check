@@ -16,7 +16,6 @@ app.use(function(req, res, next) {
 app.use('/',productRouter)
 app.use('/',authRouter)
 
-
 connect()
 .then(() => {
     app.listen(3066, () => {
