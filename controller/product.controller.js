@@ -1,39 +1,86 @@
 const { ProductModel } = require("../model/product.model");
-const { default: jwtDecode } = require("jwt-decode");
 const { UserModel } = require("../model/auth.model");
+const jwt =require("jsonwebtoken")
+require("dotenv").config()
+const { default: jwtDecode } = require("jwt-decode");
+const token_secret = process.env.TOKEN_KEY;
 
 let decodeToken =(token)=>{
    let splittoken = []
    splittoken = token.split(" ")
-   console.log(splittoken);
-   var decoded = jwtDecode(splittoken[1]);
-   return decoded.email
+   // var decoded = jwtDecode(splittoken[1]);
+   var decode=jwt.verify(splittoken[1],token_secret)
+   if(decode){
+
+      return decode.email
+   }
+   return null
 }
+
+
 
 const addToCart = async(req,res)=>{
       let {id}  = req.params;
       let Bearer = req.headers["authorization"]
-      let userEmail =  decodeToken(Bearer)
+      let splittoken = Bearer.split(" ")
       try {
-         let user = await UserModel.findOne({ email:userEmail });
+      var decode=jwt.verify(splittoken[1],token_secret)
+      if(decode){
+      
+         let userEmail =  decode.email
+         let user = await UserModel.findOne({email:userEmail});
          if(user){
-            user.cartItem.push(id)
-            return await res.send({
-                   message:"Added",
-                   data:user
-                })
-         }
+            let existing_prod = await UserModel.findOne({"cartItem.productId":id});
+            console.log(id);
+            if(existing_prod){
+               return res.send({
+                  message:"Item Already in Cart"
+               })
+            }else{
+                  let user = await UserModel.findOneAndUpdate(
+                     { email:userEmail },
+                     {$push:{cartItem:{productId:id}}},
+                     {new:true}
+                     );
+                  if(user){
+                     return res.send({
+                            message:"Added",
+                            data:user
+                         })
+                  }
+               }
+            }
+         
+        
+      }
+      
       } catch (error) {
          console.log(error);
          return res.send(error)
       }
   }
-  const getProd = async(req,res)=>{
+
+ const getProductById = async(req,res)=>{
+   let {id} = req.params;
+   let product = await ProductModel.findOne({_id:id});
+   if(product){
+      return res.send({
+         data:product,
+         message:""
+      })
+   }else{
+      return res.status(404).send({
+         message:"Data not found"
+      })
+   }
+ } 
+  const getProds = async(req,res)=>{
     let products  = await ProductModel.find()
     return res.send(products)
    }
 
    module.exports = {
-    getProd,
-    addToCart
+    getProds,
+    addToCart,
+    getProductById
    }

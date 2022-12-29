@@ -4,6 +4,7 @@ const cors = require('cors');
 const productRouter = require('./router/product.router');
 const connect = require('./db/connect');
 const authRouter = require('./router/auth.router');
+const cartRouter = require('./router/cart.router');
 const app = express()
 app.use(function(req, res, next) {  
     res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -15,6 +16,7 @@ app.use(function(req, res, next) {
   app.use(cors({origin:true,credentials:true}));
 app.use('/',productRouter)
 app.use('/',authRouter)
+app.use('/',cartRouter)
 
 connect()
 .then(() => {
