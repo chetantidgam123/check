@@ -54,7 +54,7 @@ const loginUser = async (req, res) => {
     let user = await validateUser({ email, password });
     if (user) {
       let token = jwt.sign(
-        { email: user.email, name: user.firstname},
+        {userId:user._id, email: user.email, name: user.firstname},
         token_secret,
         {
           expiresIn: "7 days",

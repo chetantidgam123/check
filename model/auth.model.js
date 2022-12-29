@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
     lastname:{type:String,required:true},
     email:{type:String,required:true},
     password:{type:String || Number,required:true},
+    cartItem:[{productId:{type:mongoose.Schema.Types.ObjectId,ref:"products"}}]
 },{
     timestamps:true  
 })
