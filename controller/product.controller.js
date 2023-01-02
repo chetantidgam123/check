@@ -23,15 +23,14 @@ const addToCart = async(req,res)=>{
       let {id}  = req.params;
       let Bearer = req.headers["authorization"]
       let splittoken = Bearer.split(" ")
+      let token = splittoken[1].replace('"', '');
       try {
-      var decode=jwt.verify(splittoken[1],token_secret)
+      var decode=jwt.verify(token,token_secret)
       if(decode){
-      
          let userEmail =  decode.email
          let user = await UserModel.findOne({email:userEmail});
          if(user){
             let existing_prod = await UserModel.findOne({"cartItem.productId":id});
-            console.log(id);
             if(existing_prod){
                return res.send({
                   message:"Item Already in Cart"
@@ -55,8 +54,10 @@ const addToCart = async(req,res)=>{
       }
       
       } catch (error) {
-         console.log(error);
-         return res.send(error)
+         return res.send({
+            error:error,
+            token:token
+         })
       }
   }
 

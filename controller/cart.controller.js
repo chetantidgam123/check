@@ -10,7 +10,6 @@ const getCartData = async (req, res) => {
         var decode = jwt.verify(splittoken[1], token_secret)
         if (decode) {
             let userEmail = decode.email
-            console.log(userEmail);
             let user = await UserModel.findOne({email: userEmail });
             if (user) {
                 return res.send({

@@ -2,7 +2,7 @@ const express = require("express");
 const { getProductById,getProds, addToCart } = require("../controller/product.controller");
 let productRouter = express.Router();
 
-productRouter.post("/addtocart/:id", addToCart)
+productRouter.get("/addtocart/:id", addToCart)
 productRouter.get("/product/:id", getProductById)
 productRouter.get("/products", getProds)
 
