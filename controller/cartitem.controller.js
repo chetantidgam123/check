@@ -105,17 +105,76 @@ const getUserCart = async (req, res) => {
         if (decode) {
             let userId = decode.userId.toString()
             let userCart = await CartItemmodel.findOne({ userId: userId });
-            let cartItem = userCart.cartItem
-            res.send({cartItem})
+            let cartItem = userCart.cartItem || []
+           return res.send({cartItem})
         }
     }
     catch (err) {
         console.log(err);
-        res.send({
+       return res.send({
             err
         })
     }
 }
+
+const updateCartQty = async(req,res)=>{
+    let Bearer = req.headers["authorization"]
+    let splittoken = Bearer.split(" ")
+    let token = splittoken[1].replace('"', '');
+const {id} = req.params 
+const {Qty} = req.body
+try {
+    if(Qty>0){
+        let existing_prod = await CartItemmodel.findOneAndUpdate({ "cartItem.cartId": id },
+                                            {'$set': {
+                                            "cartItem.$.Qty":Qty
+                                         } ,
+                                        },
+                                { new: true }
+        );
+            var decode = jwt.verify(token, token_secret)
+            if (decode) {
+                let userId = decode.userId.toString()
+                let userCart = await CartItemmodel.findOne({ userId: userId });
+                let cartItem = userCart.cartItem
+               return res.send({ cartItem, 
+                message:"Item added Succesfully"})
+            }
+    }else{
+        CartItemmodel.findByIdAndUpdate(
+            { "cartItem.cartId": id },
+           { $pull: { 'cartItem': {  cartId: id } } },function(err,model){
+              if(err){
+                   console.log(err);
+                   return res.send(err);
+                }
+                return res.json(model);
+            });
+        
+        // let existing_prod = await CartItemmodel.findOneAndRemove({ "cartItem.cartId": id },{new:true})
+            var decode = jwt.verify(token, token_secret)
+            if (decode) {
+                let userId = decode.userId.toString()
+                let userCart = await CartItemmodel.findOne({ userId: userId });
+                let cartItem = userCart.cartItem || []
+               return res.send({
+                cartItem, 
+                message:"Item Removed Succesfully"
+            })
+            }
+            else{
+                return res.send({
+                    message:"Token expired"
+                })  
+            }
+       
+    } 
+} catch (error) {
+    res.send(error)
+}
+
+}
+
 const getCart = async (req, res) => {
     let data = await CartItemmodel.find()
     return res.send({
@@ -125,5 +184,6 @@ const getCart = async (req, res) => {
 module.exports = {
     addToCart,
     getCart,
-    getUserCart
+    getUserCart,
+    updateCartQty
 }
